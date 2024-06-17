@@ -40,11 +40,7 @@
               data-bs-toggle="dropdown" aria-expanded="false">View</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="#" id="charlist-toggle-item">Hide Character List</a></li>
-              <li><a class="dropdown-item" href="#">Another action</a></li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-              <li><a class="dropdown-item" href="#">Something else here</a></li>
+              <li><a class="dropdown-item" href="#" id="glyphlist-toggle-item">Hide Glyph List</a></li>
             </ul>
           </li>
         </ul>
@@ -125,7 +121,20 @@
       </div>
       <div class="handler" id="charlist-handle"></div>
       <div class="flexbox" id="glyphlist">
-
+        <table class="table hide">
+          <thead>
+            <tr>
+              <th>glyph</th>
+              <th>adv</th>
+              <th>Δx</th>
+              <th>Δy</th>
+              <th>cluster</th>
+              <th>gid</th>
+            </tr>
+          </thead>
+          <tbody id="glyphlist-body">
+          </tbody>
+        </table>
 
       </div>
       <div class="handler" id="glyphlist-handle"></div>

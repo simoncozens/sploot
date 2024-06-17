@@ -52,6 +52,14 @@ $("#charlist-toggle-item").on("click", function() {
     state ? "Hide Character List" : "Show Character List"
   );
 });
+$("#glyphlist-toggle-item").on("click", function() {
+  let state = $("#glyphlist").css("display") == "none";
+  $("#glyphlist").toggle();
+  $("#glyphlist-handle").toggle();
+  $("#glyphlist-toggle-item").html(
+    state ? "Hide Glyph List" : "Show Glyph List"
+  );
+});
 
 // Update text on change
 
@@ -73,6 +81,34 @@ $("#text").on("input", function() {
     );
   }
   $(".sample").html(text);
+  let selected = fontlist.selectedFont;
+  if (!selected && fontlist.fonts.length > 0) {
+    selected = fontlist.fonts[0];
+  }
+  if (selected) {
+    var shaped = selected.shape(text, {
+      features: {},
+      clusterLevel: 0,
+      bufferFlag: [],
+      direction: "auto",
+      script: "",
+      language: "",
+    });
+    $("#glyphlist-body").empty();
+    $("#glyphlist").show();
+    for (let i = 0; i < shaped.length; i++) {
+      let glyph = shaped[i];
+      $("#glyphlist-body").append(
+        `<tr><td>${glyph.name}</td>
+          <td>${glyph.dx}</td>
+          <td>${glyph.dy}</td>
+          <td>${glyph.ax}</td>
+          <td>${glyph.cl}</td>
+          <td>${glyph.g}</td>
+           `
+      );
+    }
+  }
 })
 
 function handleUpload(files: FileList) {

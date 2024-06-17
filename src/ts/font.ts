@@ -9,12 +9,23 @@ export interface HBGlyph {
   dy?: number;
   ax?: number;
   ay?: number;
+  name?: string;
 }
 
 export interface Axis {
   min: number;
   max: number;
   default: number;
+}
+
+export interface ShapingOptions {
+  features: any;
+  featureString?: string;
+  clusterLevel: number;
+  direction: string;
+  script: string;
+  language: string;
+  bufferFlag: string[];
 }
 
 function arrayBufferToBase64(buffer: ArrayBuffer) {
@@ -108,5 +119,48 @@ export class Font {
     }
     return this;
   }
+
+
+  shape(s: string, options: ShapingOptions) {
+    const { hbjs } = window;
+    let featurestring =
+      options.featureString ||
+      Object.keys(options.features)
+        .map((f) => (options.features[f] ? "+" : "-") + f)
+        .join(",");
+    const font = this.hbFont;
+    const buffer = hbjs.createBuffer();
+    buffer.setClusterLevel(options.clusterLevel);
+    buffer.addText(s);
+    buffer.setFlags(options.bufferFlag);
+    buffer.guessSegmentProperties();
+    // console.log(options);
+    featurestring = `+DUMY,${featurestring}`; // Seriously?
+    // console.log(featurestring);
+    if (options.direction !== "auto") {
+      buffer.setDirection(options.direction);
+    }
+    if (options.script !== "") {
+      buffer.setScript(options.script);
+    }
+    if (options.language !== "") {
+      buffer.setLanguage(options.language);
+    }
+
+    const result = hbjs.shapeWithTrace(
+      font,
+      buffer,
+      featurestring,
+      0,
+      0
+    );
+    const last = result[result.length - 1];
+    buffer.destroy();
+    last.t.forEach((g: HBGlyph) => {
+      g.name = font.glyphName(g.g);
+    })
+    return last.t;
+  }
+
 
 }
