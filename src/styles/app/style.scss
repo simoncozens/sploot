@@ -1,0 +1,72 @@
+.wrapper {
+  /* Use flexbox */
+  display: flex;
+  height: 100%;
+}
+
+main {
+  height: 100vh;
+}
+
+.flexbox {
+  border-radius: 5px;
+  padding: 20px;
+  /* Use box-sizing so that element's outerwidth will match width property */
+  box-sizing: border-box;
+  
+  /* Allow box to grow and shrink, and ensure they are all equally sized */
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+#charlist { width: 200px }
+#main {
+  flex: 1 1 auto;
+}
+.handler {
+  width: 20px;
+  padding: 0;
+  cursor: ew-resize;
+  flex: 0 0 auto;
+}
+
+.handler::before {
+  content: '';
+  display: block;
+  width: 2px;
+  height: 100%;
+  background:#f1e5ea;
+  margin: 0 auto;
+}
+
+.font-item {
+  padding: 5px;
+}
+.font-name {
+  font-size: 12px;
+}
+.sample {
+  font-size: 60px;
+  position: relative;
+}
+.bi {
+  width: 1em;
+  height: 1em;
+  vertical-align: -.125em;
+  fill: currentcolor;
+  }
+
+#sidebar {
+  width: 220px;
+  flex: 0 0 auto;
+}
+.selected {
+  background-color: darken($body-bg, 10%);
+}
+@include color-mode(dark) {
+  .selected {
+    background-color: lighten(#212529, 10%);
+  }
+}
+
+#tabs li button { font-size: 15px; }

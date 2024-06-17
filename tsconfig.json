@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "src/ts/*": [ "src/ts/*" ]
+    },
+    "outDir":"./dist/js/",
+    "module": "amd",
+    "target": "es6",
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false
+  },
+  "compileOnSave": true,
+  "exclude": [  ]
+}

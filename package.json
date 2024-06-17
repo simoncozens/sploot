@@ -1,0 +1,37 @@
+{
+  "dependencies": {
+    "@popperjs/core": "^2.6.0",
+    "bootstrap": "^5.3.3",
+    "css-loader": "^7.1.2",
+    "lodash": "^4.17.20",
+    "requirejs": "^2.3.6",
+    "style-loader": "^4.0.0",
+    "unicode-properties": "^1.4.1"
+  },
+  "name": "bbp",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "webpack",
+    "start": "webpack serve"
+  },
+  "author": "MRP",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/bootstrap": "^5.2.10",
+    "@types/jquery": "^3.5.30",
+    "concurrently": "^5.3.0",
+    "copy-webpack-plugin": "^12.0.2",
+    "jquery": "^3.7.1",
+    "mini-css-extract-plugin": "^2.9.0",
+    "opentype.js": "github:simoncozens/opentype.js#crowbar",
+    "sass": "^1.77.5",
+    "sass-loader": "^14.2.1",
+    "ts-loader": "^9.5.1",
+    "tsc": "^2.0.4",
+    "typescript": "^4.9.5",
+    "webpack": "^5.92.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4"
+  }
+}
