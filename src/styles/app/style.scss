@@ -46,9 +46,13 @@ main {
 .font-name {
   font-size: 12px;
 }
-.sample {
+.sample,
+.hbsample {
   font-size: 60px;
   position: relative;
+}
+.hbsample svg {
+  height: 60px;
 }
 .bi {
   width: 1em;
@@ -63,6 +67,9 @@ main {
 }
 .selected {
   background-color: darken($body-bg, 10%);
+}
+.hbsample svg {
+  fill: var(--bs-body-color);
 }
 @include color-mode(dark) {
   .selected {

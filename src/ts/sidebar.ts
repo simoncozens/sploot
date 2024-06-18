@@ -7,7 +7,12 @@ let options = `
 <input type="range" class="form-range" min="-50" max="50" id="baseline">
 <label for="baseline" class="form-label">Margin</label>
 <input type="range" class="form-range" min="-50" max="50" id="margin">
-<div id="palettes-input">
+<div class="form-check">
+  <input class="form-check-input" type="checkbox" value="" id="harfbuzzRender">
+  <label class="form-check-label" for="harfbuzzRender">
+    Render using Harfbuzz
+  </label>
+</div><div id="palettes-input">
 </div>
 `;
 
@@ -59,33 +64,44 @@ $("#sidebar").html(`
   <div class="tab-pane fade" id="options-pane" role="tabpanel" aria-labelledby="options" tabindex="0">${options}</div>
 </div>
 </form>
-`)
+`);
 
 // Alignment menu
-$("#alignment").on("input", function() {
-    let alignment = $(this).val();
-    if (alignment == "auto") {
-        $(".sample").css("text-align", "none");
-    } else if (alignment == "left") {
-        $(".sample").css("text-align", "left");  
-    } else if (alignment == "center") {
-        $(".sample").css("text-align", "center");
-    } else if (alignment == "right") {
-        $(".sample").css("text-align", "right");
-    }
-})
+$("#alignment").on("input", function () {
+  let alignment = $(this).val();
+  if (alignment == "auto") {
+    $(".sample").css("text-align", "none");
+  } else if (alignment == "left") {
+    $(".sample").css("text-align", "left");
+  } else if (alignment == "center") {
+    $(".sample").css("text-align", "center");
+  } else if (alignment == "right") {
+    $(".sample").css("text-align", "right");
+  }
+});
 
 // Options menu
-$("#relsize").on("input", function() {
-    let size = $(this).val();
-    $(".sample").css("font-size", `${size}px`);
+$("#relsize").on("input", function () {
+  let size = $(this).val();
+  $(".sample").css("font-size", `${size}px`);
+  $(".hbsample svg").css("height", `${size}px`);
 });
-$("#baseline").on("input", function() {
-    let baseline = $(this).val();
-    $(".sample").css("bottom", `${baseline}px`);
+$("#baseline").on("input", function () {
+  let baseline = $(this).val();
+  $(".sample,.hbsample").css("bottom", `${baseline}px`);
 });
-$("#margin").on("input", function() {
-    let margin = $(this).val();
-    $(".sample").css("margin-left", `${margin}px`);
-    $(".sample").css("margin-right", `${margin}px`);
+$("#margin").on("input", function () {
+  let margin = $(this).val();
+  $(".sample,.hbsample").css("margin-left", `${margin}px`);
+  $(".sample,.hbsample").css("margin-right", `${margin}px`);
+});
+$("#harfbuzzRender").on("input", function () {
+  let checked = $(this).is(":checked");
+  if (checked) {
+    $(".hbsample").show();
+    $(".sample").hide();
+  } else {
+    $(".hbsample").hide();
+    $(".sample").show();
+  }
 });

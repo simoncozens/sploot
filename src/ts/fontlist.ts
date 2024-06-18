@@ -98,6 +98,7 @@ class FontList {
         `<div class="font-item" data-index="${index}">
           <div class="font-name text-muted">${font.filename}</div>
           <div class="sample" style="font-family: '${font.filename}', 'Adobe Notdef'">${text}</div>
+          <div class="hbsample" style="display: none"></div>
         </div>`
       );
     }
@@ -274,11 +275,13 @@ class FontList {
       );
     }
     $(".sample").html(text);
+    $(".hbsample").empty();
     let selected = this.selectedFont;
     if (!selected && this.fonts.length > 0) {
       selected = this.fonts[0];
     }
     if (selected) {
+      let selectedIndex = this.fonts.indexOf(selected);
       var shaped = selected.shape(text, {
         features: this.features(),
         clusterLevel: 0,
@@ -301,6 +304,12 @@ class FontList {
              `
         );
       }
+      if (shaped.length > 0) {
+        selected
+          .glyphstringToSVG(shaped)
+          .addTo($(`.hbsample`).get(selectedIndex));
+      }
+
     }
   }
 }

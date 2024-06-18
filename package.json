@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@popperjs/core": "^2.6.0",
+    "@svgdotjs/svg.js": "^3.2.3",
     "bootstrap": "^5.3.3",
     "css-loader": "^7.1.2",
     "lodash": "^4.17.20",

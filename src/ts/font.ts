@@ -1,5 +1,6 @@
 import { parse } from "opentype.js";
 import { Font as OTFont } from "opentype.js";
+import * as SVG from "@svgdotjs/svg.js";
 
 export interface HBGlyph {
   g: number;
@@ -190,5 +191,55 @@ export class Font {
 
   setVariations(variations: Record<string, number>) {
     this.hbFont.setVariations(variations);
+  }
+
+  getSVG(gid: number): any {
+    let svgText = this.hbFont.glyphToPath(gid);
+    // if (svgText.length < 10) {
+    //   const glyph = this.getGlyph(gid);
+    //   if (glyph) {
+    //     svgText = (glyph.path as Path).toSVG(2);
+    //   }
+    // } else {
+    svgText = `<path d="${svgText}"/>`;
+    // }
+    svgText = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">${svgText} </svg>`;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svgText, "image/svg+xml");
+    return doc.documentElement;
+  }
+
+  glyphstringToSVG(glyphstring: HBGlyph[]): SVG.Svg {
+    let curAX = 0;
+    let curAY = 0;
+    const totalSVG = SVG.SVG();
+    const maingroup = totalSVG.group();
+    glyphstring.forEach((g) => {
+      const group = maingroup.group();
+      const svgDoc = SVG.SVG(this.getSVG(g.g));
+      svgDoc.children().forEach((c) => group.add(c));
+      group.transform({
+        translate: [curAX + (g.dx || 0), curAY + (g.dy || 0)],
+      });
+      // if (g.cl === highlightedglyph) {
+      //   const otGlyph = this.getGlyph(g.g);
+      //   if (otGlyph) {
+      //     group
+      //       .rect(
+      //         otGlyph.advanceWidth,
+      //         otGlyph.getMetrics().yMax - otGlyph.getMetrics().yMin
+      //       )
+      //       .stroke({ color: "#f06", width: 5 })
+      //       .fill("none")
+      //       .transform({ translate: [0, otGlyph.getMetrics().yMin] });
+      //   }
+      // }
+      curAX += g.ax || 0;
+      curAY += g.ay || 0;
+    });
+    maingroup.transform({ flip: "y" });
+    const box = maingroup.bbox();
+    totalSVG.viewbox(box.x, box.y, box.width, box.height);
+    return totalSVG;
   }
 }
