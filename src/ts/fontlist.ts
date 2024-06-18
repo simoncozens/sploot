@@ -97,7 +97,7 @@ class FontList {
       $("#fontlist").append(
         `<div class="font-item" data-index="${index}">
           <div class="font-name text-muted">${font.filename}</div>
-          <div class="sample" style="font-family: '${font.filename}'">${text}</div>
+          <div class="sample" style="font-family: '${font.filename}', 'Adobe Notdef'">${text}</div>
         </div>`
       );
     }
