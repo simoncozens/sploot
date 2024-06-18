@@ -56,8 +56,7 @@ export class Font {
   supportedFeatures: Set<string>;
   axes?: Map<string, Axis>;
   axisNames?: Map<string, string>;
-  palettes: Map<string, number|string>;
-
+  palettes: Map<string, number | string>;
 
   constructor(name: string, fontBlob: ArrayBuffer, faceIdx: number = 0) {
     this.filename = name;
@@ -95,10 +94,10 @@ export class Font {
         });
       }
       if (this.otFont && this.otFont.tables.cpal) {
-        let cpal = this.otFont.tables.cpal
+        let cpal = this.otFont.tables.cpal;
         for (var paletteIdx in cpal.colorRecordIndices) {
           let ix = paletteIdx as unknown as number;
-          if (cpal.paletteLabels && cpal.paletteLabels.length < ix-1) {
+          if (cpal.paletteLabels && cpal.paletteLabels.length < ix - 1) {
             this.palettes.set(cpal.paletteLabels[ix], ix);
           } else {
             this.palettes.set(`#${ix}`, ix);
@@ -108,12 +107,12 @@ export class Font {
             // This is not strictly true; there may be multiple palettes
             // OK to use in light and dark mode - the type does not
             // specify that one is recommended.
-            if (parseInt(cpal.paletteTypes[ix],10) & 0x01) {
-              console.log("Light")
+            if (parseInt(cpal.paletteTypes[ix], 10) & 0x01) {
+              console.log("Light");
               this.palettes.set("Light Mode", "light");
             }
-            if (parseInt(cpal.paletteTypes[ix],10) & 0x02) {
-              console.log("dark")
+            if (parseInt(cpal.paletteTypes[ix], 10) & 0x02) {
+              console.log("dark");
               this.palettes.set("Dark Mode", "dark");
             }
           }
@@ -123,7 +122,6 @@ export class Font {
     }
     return this;
   }
-
 
   shape(s: string, options: ShapingOptions) {
     const { hbjs } = window;
@@ -151,21 +149,14 @@ export class Font {
       buffer.setLanguage(options.language);
     }
 
-    const result = hbjs.shapeWithTrace(
-      font,
-      buffer,
-      featurestring,
-      0,
-      0
-    );
+    const result = hbjs.shapeWithTrace(font, buffer, featurestring, 0, 0);
     const last = result[result.length - 1];
     buffer.destroy();
     last.t.forEach((g: HBGlyph) => {
       g.name = font.glyphName(g.g);
-    })
+    });
     return last.t;
   }
-
 
   gsubFeatureTags(): string[] {
     if (!this.otFont) {
