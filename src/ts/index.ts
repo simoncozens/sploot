@@ -18,7 +18,6 @@ fetch(`assets/harfbuzz.wasm`)
     window["hbjs"] = hb;
   });
 
-var unicode = require('unicode-properties');
 
 var handler = $('.handler');
 var isHandlerDragging = false;
@@ -63,53 +62,7 @@ $("#glyphlist-toggle-item").on("click", function() {
 
 // Update text on change
 
-$("#text").on("input", function() {
-  let text = $("#text").val() as string;
-  $("#charlist-body").empty();
-  for (let i = 0; i < text.length; i++) {
-    let codepoint = text.codePointAt(i)
-    let codepoint_formatted = codepoint.toString(16).padStart(4, "0");
-    let script = unicode.getScript(codepoint);
-    let category = unicode.getCategory(codepoint);
-    $("#charlist-body").append(
-      `<tr><td>${text[i]}</td>
-          <td>U+${codepoint_formatted}</td>
-          <td>${script}</td>
-          <td>${category}</td>
-          <td>${i}</td></tr>
-           `
-    );
-  }
-  $(".sample").html(text);
-  let selected = fontlist.selectedFont;
-  if (!selected && fontlist.fonts.length > 0) {
-    selected = fontlist.fonts[0];
-  }
-  if (selected) {
-    var shaped = selected.shape(text, {
-      features: {},
-      clusterLevel: 0,
-      bufferFlag: [],
-      direction: "auto",
-      script: "",
-      language: "",
-    });
-    $("#glyphlist-body").empty();
-    $("#glyphlist").show();
-    for (let i = 0; i < shaped.length; i++) {
-      let glyph = shaped[i];
-      $("#glyphlist-body").append(
-        `<tr><td>${glyph.name}</td>
-          <td>${glyph.dx}</td>
-          <td>${glyph.dy}</td>
-          <td>${glyph.ax}</td>
-          <td>${glyph.cl}</td>
-          <td>${glyph.g}</td>
-           `
-      );
-    }
-  }
-})
+$("#text").on("input", fontlist.updateText.bind(fontlist));
 
 function handleUpload(files: FileList) {
   for (var file of files) {

@@ -45,7 +45,14 @@ $("#sidebar").html(`
   </li>
 </ul>
 <div class="tab-content" id="myTabContent">
-  <div class="tab-pane fade show active" id="features-pane" role="tabpanel" aria-labelledby="features" tabindex="0">Features</div>
+
+  <div class="tab-pane fade show active" id="features-pane" role="tabpanel" aria-labelledby="features" tabindex="0">
+    <h6>GSUB</h6>
+      <div id="gsub-features"></div>
+    <h6>GPOS</h6>
+      <div id="gpos-features"></div>
+  </div>
+
   <div class="tab-pane fade" id="variations-pane" role="tabpanel" aria-labelledby="variations" tabindex="0">
     <div class="m-2">No fonts with variations.</div>
   </div>

@@ -38,6 +38,10 @@ function arrayBufferToBase64(buffer: ArrayBuffer) {
   return btoa(binary);
 }
 
+export function onlyUnique(value: any, index: number, self: any) {
+  return self.indexOf(value) === index;
+}
+
 declare let window: any;
 
 export class Font {
@@ -162,5 +166,35 @@ export class Font {
     return last.t;
   }
 
+
+  gsubFeatureTags(): string[] {
+    if (!this.otFont) {
+      return [];
+    }
+    if (!this.otFont.tables.gsub) {
+      return [];
+    }
+    return this.otFont.tables.gsub.features
+      .map((x: any) => x.tag)
+      .filter(onlyUnique);
+  }
+
+  gposFeatureTags(): string[] {
+    if (!this.otFont) {
+      return [];
+    }
+    if (!this.otFont.tables.gpos) {
+      return [];
+    }
+    return this.otFont.tables.gpos.features
+      .map((x: any) => x.tag)
+      .filter(onlyUnique);
+  }
+
+  allFeatureTags(): string[] {
+    return [...this.gsubFeatureTags(), ...this.gposFeatureTags()].filter(
+      onlyUnique
+    );
+  }
 
 }

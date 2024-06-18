@@ -1,5 +1,7 @@
-import { Font, Axis } from "./font";
+import { Font, Axis, onlyUnique } from "./font";
+import { FEATURETAGS } from "./constants";
 import $ from "jquery";
+var unicode = require('unicode-properties');
 
 class FontList {
   fonts: Font[];
@@ -25,6 +27,21 @@ class FontList {
     return axes;
   }
 
+  combinedGSUBFeatures(): string[] {
+    let features: string[] = [];
+    for (let font of this.fonts) {
+      features = features.concat(font.gsubFeatureTags());
+    }
+    return features.filter(onlyUnique);
+  }
+
+  combinedGPOSFeatures(): string[] {
+    let features: string[] = [];
+    for (let font of this.fonts) {
+      features = features.concat(font.gposFeatureTags());
+    }
+    return features.filter(onlyUnique);
+  }
   combinedPalettes(): Record<string, (number|string)[]> {
     let palettes: Record<string, (number|string)[]> = {}
     for (let font of this.fonts) {
@@ -43,7 +60,6 @@ class FontList {
       }
     }
 
-    console.log(palettes);
     return palettes
   }
 
@@ -66,6 +82,7 @@ class FontList {
     this.updateVariations();
     window["font"] = font;
     this.updatePalettes();
+    this.updateFeatures();
     console.log(font)
   }
 
@@ -110,13 +127,8 @@ class FontList {
         <input type="range" class="form-range axis-slider" min="${axis.min}" max="${axis.max}" value="${axis.default}" id="${tag}-axis">
       `);
       $("#variations-pane").append(axis_slider);
-      axis_slider.on("input", function () {
-        let allVariations = "";
-        $(".axis-slider").each(function () {
-          let tag = $(this).attr("id").split("-")[0];
-          allVariations += `"${tag}" ${$(this).val()}, `;
-        });
-        $(".sample").css(`font-variation-settings`, allVariations.substring(0, allVariations.length - 2));
+      axis_slider.on("input", () => {
+        $(".sample").css(`font-variation-settings`, this.variationsString());
       });
     }
     $("#variations-pane").append(`
@@ -159,6 +171,100 @@ class FontList {
     }
   }
 
+  updateFeatures() {
+    let gsub = this.combinedGSUBFeatures();
+    let gpos = this.combinedGPOSFeatures();
+    $("#gsub-features").empty();
+    $("#gpos-features").empty();
+    function addFeature(area, feature) {
+      let div = $(`<div class="feature mb-2">`)
+      let pill = $(`<span class="badge rounded-pill text-bg-secondary" data-feature="${feature}" data-feature-state="auto">${feature}</span>`);
+      div.append(pill);
+      if (feature in FEATURETAGS) {
+        div.append(" "+FEATURETAGS[feature])
+      }
+      area.append(div)
+    }
+    for (let feature of gsub) {
+      addFeature($("#gsub-features"), feature);
+    }
+    for (let feature of gpos) {
+      addFeature($("#gpos-features"), feature);
+    }
+  }
+
+  // Shaping parameter stat
+  variations() : Record<string, number> {
+    let allVariations = {}
+    $(".axis-slider").each(function () {
+      let tag = $(this).attr("id").split("-")[0];
+      allVariations[tag] = $(this).val()
+    });
+    return allVariations;
+  }
+
+  variationsString(): string {
+    return Object.entries(this.variations()).map( ([tag, val]) => `"${tag}" ${val}`).join(", ")
+  }
+
+  features() : Record<string, boolean> {
+    let allFeatures = {}
+    $(".feature").each(function () {
+      let feature = $(this).data("feature");
+      let state = $(this).data("feature-state");
+      allFeatures[feature] = state == "on";
+    });
+    return allFeatures;
+  }
+
+  // Called on change of text, or change of shaping parameters
+  updateText() {
+    let text = $("#text").val() as string;
+    $("#charlist-body").empty();
+    for (let i = 0; i < text.length; i++) {
+      let codepoint = text.codePointAt(i)
+      let codepoint_formatted = codepoint.toString(16).padStart(4, "0");
+      let script = unicode.getScript(codepoint);
+      let category = unicode.getCategory(codepoint);
+      $("#charlist-body").append(
+        `<tr><td>${text[i]}</td>
+            <td>U+${codepoint_formatted}</td>
+            <td>${script}</td>
+            <td>${category}</td>
+            <td>${i}</td></tr>
+             `
+      );
+    }
+    $(".sample").html(text);
+    let selected = this.selectedFont;
+    if (!selected && this.fonts.length > 0) {
+      selected = this.fonts[0];
+    }
+    if (selected) {
+      var shaped = selected.shape(text, {
+        features: {},
+        clusterLevel: 0,
+        bufferFlag: [],
+        direction: "auto",
+        script: "",
+        language: "",
+      });
+      $("#glyphlist-body").empty();
+      $("#glyphlist").show();
+      for (let i = 0; i < shaped.length; i++) {
+        let glyph = shaped[i];
+        $("#glyphlist-body").append(
+          `<tr><td>${glyph.name}</td>
+            <td>${glyph.dx}</td>
+            <td>${glyph.dy}</td>
+            <td>${glyph.ax}</td>
+            <td>${glyph.cl}</td>
+            <td>${glyph.g}</td>
+             `
+        );
+      }
+    }
+  }
 }
 
 export let fontlist = new FontList();
