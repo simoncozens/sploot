@@ -197,4 +197,7 @@ export class Font {
     );
   }
 
+  setVariations(variations: Record<string, number>) {
+    this.hbFont.setVariations(variations);
+  }
 }

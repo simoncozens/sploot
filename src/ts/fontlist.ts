@@ -82,6 +82,7 @@ class FontList {
     window["font"] = font;
     this.updatePalettes();
     this.updateFeatures();
+    this.updateText();
   }
 
   updateFontList() {
@@ -107,6 +108,7 @@ class FontList {
       fontlist.selectedFont = fontlist.fonts[index];
       $(".font-item").removeClass("selected");
       $(this).addClass("selected");
+      fontlist.updateText();
     });
     $("#main").on("click", function () {
       $(".font-item").removeClass("selected");
@@ -118,6 +120,7 @@ class FontList {
   updateVariations() {
     $("#variations-pane").empty();
     let axisNameMap = this.combinedAxisNames();
+    let that = this;
     for (let [tag, axis] of Object.entries(this.combinedAxes())) {
       let name = axisNameMap[tag];
       let axis_slider = $(`
@@ -127,6 +130,10 @@ class FontList {
       $("#variations-pane").append(axis_slider);
       axis_slider.on("input", () => {
         $(".sample").css(`font-variation-settings`, this.variationsCSS());
+        that.fonts.forEach((font) => {
+          font.setVariations(that.variations());
+        });
+        that.updateText();
       });
     }
     $("#variations-pane").append(`
