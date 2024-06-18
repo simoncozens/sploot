@@ -1,9 +1,11 @@
 import { Font, Axis, onlyUnique } from "./font";
 import { FEATURETAGS } from "./constants";
 import $ from "jquery";
-var unicode = require('unicode-properties');
+var unicode = require("unicode-properties");
 
 class FontList {
+  /// This is the list of all the loaded fonts, but it's also the
+  /// singleton repository of all the state of the application.
   fonts: Font[];
   selectedFont: Font;
 
@@ -42,28 +44,25 @@ class FontList {
     }
     return features.filter(onlyUnique);
   }
-  combinedPalettes(): Record<string, (number|string)[]> {
-    let palettes: Record<string, (number|string)[]> = {}
+  combinedPalettes(): Record<string, (number | string)[]> {
+    let palettes: Record<string, (number | string)[]> = {};
     for (let font of this.fonts) {
       for (let [name, index] of font.palettes.entries()) {
-        palettes[name] = []
+        palettes[name] = [];
       }
     }
     for (let font of this.fonts) {
       for (let [name, index] of Object.entries(palettes)) {
         if (font.palettes.has(name)) {
-          index.push(font.palettes.get(name))
-        }
-        else {
-          index.push(-1)
+          index.push(font.palettes.get(name));
+        } else {
+          index.push(-1);
         }
       }
     }
 
-    return palettes
+    return palettes;
   }
-
-
 
   combinedAxisNames(): Record<string, string> {
     let axes: Record<string, string> = {};
@@ -83,14 +82,13 @@ class FontList {
     window["font"] = font;
     this.updatePalettes();
     this.updateFeatures();
-    console.log(font)
   }
 
   updateFontList() {
     if (this.fonts.length == 0) {
-      $("#drop-sign").show()
+      $("#drop-sign").show();
     } else {
-      $("#drop-sign").hide()
+      $("#drop-sign").hide();
     }
     $("#fontlist").empty();
     let text = $("#text").val() as string;
@@ -119,7 +117,7 @@ class FontList {
   // Reset the axes
   updateVariations() {
     $("#variations-pane").empty();
-    let axisNameMap = this.combinedAxisNames()
+    let axisNameMap = this.combinedAxisNames();
     for (let [tag, axis] of Object.entries(this.combinedAxes())) {
       let name = axisNameMap[tag];
       let axis_slider = $(`
@@ -128,12 +126,12 @@ class FontList {
       `);
       $("#variations-pane").append(axis_slider);
       axis_slider.on("input", () => {
-        $(".sample").css(`font-variation-settings`, this.variationsString());
+        $(".sample").css(`font-variation-settings`, this.variationsCSS());
       });
     }
     $("#variations-pane").append(`
       <button class="btn btn-primary" id="reset-axes">Reset Axes</button>
-    `)
+    `);
     $("#reset-axes").on("click", function () {
       $(".axis-slider").each(function () {
         $(this).val($(this).attr("value"));
@@ -146,28 +144,27 @@ class FontList {
     let palettes = this.combinedPalettes();
     $("#palettes-input").empty();
     if (Object.keys(palettes).length) {
-      $("#palettes-input").append(`<label for="palettes" class="form-label">Color palettes</label>`)
-      let select = $(`<select class="form-select mb-2" id="palettes">`)
+      $("#palettes-input").append(
+        `<label for="palettes" class="form-label">Color palettes</label>`
+      );
+      let select = $(`<select class="form-select mb-2" id="palettes">`);
       for (var name of Object.keys(palettes).sort()) {
-        let option = $(`<option value="${name}">${name}</option>`)
+        let option = $(`<option value="${name}">${name}</option>`);
         select.append(option);
       }
       $("#palettes-input").append(select);
-      select.on("input", function() {
+      select.on("input", function () {
         let palettename = select.val() as string;
         let entries = palettes[palettename];
-        $(".sample").each( (index, el) => {
+        $(".sample").each((index, el) => {
           var palettechoice = entries[index];
-          console.log(`Font ${index} -> palette ${palettechoice}`);
-          console.log(el);
           if (typeof palettechoice == "string" || palettechoice > -1) {
             $(el).css("font-palette", palettechoice);
           } else {
             $(el).css("font-palette", "none");
           }
-        })
-
-      })
+        });
+      });
     }
   }
 
@@ -176,14 +173,36 @@ class FontList {
     let gpos = this.combinedGPOSFeatures();
     $("#gsub-features").empty();
     $("#gpos-features").empty();
+    let that = this;
     function addFeature(area, feature) {
-      let div = $(`<div class="feature mb-2">`)
-      let pill = $(`<span class="badge rounded-pill text-bg-secondary" data-feature="${feature}" data-feature-state="auto">${feature}</span>`);
+      let div = $(`<div class="feature mb-2">`);
+      let pill = $(
+        `<span class="badge rounded-pill text-bg-secondary" data-feature="${feature}" data-feature-state="auto">${feature}</span>`
+      );
+      let nextState = {
+        on: "off",
+        off: "auto",
+        auto: "on",
+      };
+      let background = {
+        on: "text-bg-primary",
+        off: "text-bg-danger",
+        auto: "text-bg-secondary",
+      };
+      pill.on("click", function () {
+        let state = $(this).data("feature-state");
+        let next = nextState[state];
+        $(this).data("feature-state", next);
+        $(this).removeClass(background[state]);
+        $(this).addClass(background[next]);
+        $(".sample").css("font-feature-settings", that.featuresCSS());
+        that.updateText();
+      });
       div.append(pill);
       if (feature in FEATURETAGS) {
-        div.append(" "+FEATURETAGS[feature])
+        div.append(" " + FEATURETAGS[feature]);
       }
-      area.append(div)
+      area.append(div);
     }
     for (let feature of gsub) {
       addFeature($("#gsub-features"), feature);
@@ -194,27 +213,39 @@ class FontList {
   }
 
   // Shaping parameter stat
-  variations() : Record<string, number> {
-    let allVariations = {}
+  variations(): Record<string, number> {
+    let allVariations = {};
     $(".axis-slider").each(function () {
       let tag = $(this).attr("id").split("-")[0];
-      allVariations[tag] = $(this).val()
+      allVariations[tag] = $(this).val();
     });
     return allVariations;
   }
 
-  variationsString(): string {
-    return Object.entries(this.variations()).map( ([tag, val]) => `"${tag}" ${val}`).join(", ")
+  variationsCSS(): string {
+    return Object.entries(this.variations())
+      .map(([tag, val]) => `"${tag}" ${val}`)
+      .join(", ");
   }
 
-  features() : Record<string, boolean> {
-    let allFeatures = {}
-    $(".feature").each(function () {
+  features(): Record<string, boolean> {
+    let allFeatures = {};
+    $("span[data-feature]").each(function () {
       let feature = $(this).data("feature");
       let state = $(this).data("feature-state");
-      allFeatures[feature] = state == "on";
+      if (state == "on") {
+        allFeatures[feature] = true;
+      } else if (state == "off") {
+        allFeatures[feature] = false;
+      }
     });
     return allFeatures;
+  }
+
+  featuresCSS() {
+    return Object.entries(this.features())
+      .map(([tag, val]) => (val ? `"${tag}"` : `"${tag}" 0`))
+      .join(",");
   }
 
   // Called on change of text, or change of shaping parameters
@@ -222,7 +253,7 @@ class FontList {
     let text = $("#text").val() as string;
     $("#charlist-body").empty();
     for (let i = 0; i < text.length; i++) {
-      let codepoint = text.codePointAt(i)
+      let codepoint = text.codePointAt(i);
       let codepoint_formatted = codepoint.toString(16).padStart(4, "0");
       let script = unicode.getScript(codepoint);
       let category = unicode.getCategory(codepoint);
@@ -242,7 +273,7 @@ class FontList {
     }
     if (selected) {
       var shaped = selected.shape(text, {
-        features: {},
+        features: this.features(),
         clusterLevel: 0,
         bufferFlag: [],
         direction: "auto",
