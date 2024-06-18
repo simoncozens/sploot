@@ -293,9 +293,9 @@ class FontList {
         let glyph = shaped[i];
         $("#glyphlist-body").append(
           `<tr><td>${glyph.name}</td>
+            <td>${glyph.ax}</td>
             <td>${glyph.dx}</td>
             <td>${glyph.dy}</td>
-            <td>${glyph.ax}</td>
             <td>${glyph.cl}</td>
             <td>${glyph.g}</td>
              `
