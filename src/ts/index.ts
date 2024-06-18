@@ -120,9 +120,16 @@ function handleUpload(files: FileList) {
         return (e) => {
           var arrayBuffer = reader.result as ArrayBuffer;
           var byteArray = new Uint8Array(arrayBuffer);
-          var newFont = new Font(file.name, byteArray);
-          console.log("Adding new font "+file.name);
-          fontlist.addFont(newFont);
+          try {
+            var newFont = new Font(file.name, byteArray);
+            console.log("Adding new font "+file.name);
+            fontlist.addFont(newFont);
+          }
+          catch (e) {
+            console.error(e);
+            $("#toast .toast-body").html("Error loading font: " + e);
+            (new Bootstrap.Toast($("#toast")[0])).show();
+          }
         };
       })(file);
       reader.readAsArrayBuffer(file);
