@@ -138,7 +138,7 @@ class FontList {
       });
     }
     $("#variations-pane").append(`
-      <button class="btn btn-primary" id="reset-axes">Reset Axes</button>
+      <a class="btn btn-primary" id="reset-axes">Reset Axes</a>
     `);
     $("#reset-axes").on("click", function () {
       $(".axis-slider").each(function () {
