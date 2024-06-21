@@ -1,6 +1,7 @@
 import { Font, Axis, onlyUnique } from "./font";
 import { FEATURETAGS } from "./constants";
 import $ from "jquery";
+
 var unicode = require("unicode-properties");
 
 class FontList {
@@ -148,6 +149,14 @@ class FontList {
     });
   }
 
+  setToDefaultPalette() {
+    var theme = localStorage.getItem('theme');
+    if (theme == "auto") {
+      theme = (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+    $(".sample").css("font-palette", theme)
+  }
+
   updatePalettes() {
     let palettes = this.combinedPalettes();
     $("#palettes-input").empty();
@@ -155,14 +164,21 @@ class FontList {
       $("#palettes-input").append(
         `<label for="palettes" class="form-label">Color palettes</label>`
       );
-      let select = $(`<select class="form-select mb-2" id="palettes">`);
+      let select = $(`
+        <select class="form-select mb-2" id="palettes">
+        <option value="default">Default for color theme</option>
+      `);
       for (var name of Object.keys(palettes).sort()) {
         let option = $(`<option value="${name}">${name}</option>`);
         select.append(option);
       }
       $("#palettes-input").append(select);
-      select.on("input", function () {
+      select.on("input",  () => {
         let palettename = select.val() as string;
+        if (palettename == "default") {
+          this.setToDefaultPalette();
+          return;
+        }
         let entries = palettes[palettename];
         $(".sample").each((index, el) => {
           var palettechoice = entries[index];
@@ -173,6 +189,7 @@ class FontList {
           }
         });
       });
+      this.setToDefaultPalette()
     }
   }
 
