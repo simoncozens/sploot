@@ -17,6 +17,12 @@
 
 <body class="app">
     <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+        <symbol id="lightning-charge" viewBox="0 0 16 16">
+            <path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09zM4.157 8.5H7a.5.5 0 0 1 .478.647L6.11 13.59l5.732-6.09H9a.5.5 0 0 1-.478-.647L9.89 2.41z"/>
+        </symbol>
+        <symbol fill="currentColor" id="lightning-charge-fill" viewBox="0 0 16 16">
+            <path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"/>
+        </symbol>
         <symbol id="circle-half" viewBox="0 0 16 16">
             <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
         </symbol>
@@ -43,13 +49,20 @@
                         </ul>
                     </li>
                 </ul>
+
                 <ul class="navbar-nav ms-auto">
+                    <li class="nav-item me-2">
+                        <button type="button" id="live-reload" class="btn btn-link nav-link py-2 px-0 px-lg-2 d-flex align-items-center" aria-pressed="false" data-toggle="tooltip" data-placement="top" title="Live reloading">
+                            <svg class="bi my-1">
+                                <use href="#lightning-charge-fill"></use>
+                            </svg>
+                        </button>
+                    </li>
                     <li class="nav-item dropdown me-auto">
-                        <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (dark)">
+                        <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (dark)" data-toggle="tooltip" data-placement="top" title="Choose theme">
                             <svg class="bi my-1 theme-icon-active">
                                 <use href="#moon-stars-fill"></use>
                             </svg>
-                            <span class="d-lg-none ms-2" id="bd-theme-text">Toggle theme</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
                             <li>
