@@ -1,6 +1,8 @@
+import * as Bootstrap from 'bootstrap'
 import { parse } from "opentype.js";
 import { Font as OTFont } from "opentype.js";
 import * as SVG from "@svgdotjs/svg.js";
+import { fontlist } from "./fontlist";
 
 export interface HBGlyph {
   g: number;
@@ -48,6 +50,9 @@ declare let window: any;
 export class Font {
   filename: string;
   binary: ArrayBuffer;
+  handle: FileSystemFileHandle;
+  familyname: string;
+  lastmodificationtime: number;
   base64?: string;
   fontFace?: string;
   hbFont?: any;
@@ -59,8 +64,33 @@ export class Font {
   axisNames?: Map<string, string>;
   palettes: Map<string, number | string>;
 
-  constructor(name: string, fontBlob: ArrayBuffer, faceIdx: number = 0) {
-    this.filename = name;
+  constructor(handle: FileSystemFileHandle, faceIdx: number = 0) {
+    this.lastmodificationtime = 0;
+    this.handle = handle;
+  }
+
+  async compare() {
+    const file = await this.handle.getFile()
+    if (file.lastModified > this.lastmodificationtime) {
+      this.lastmodificationtime = +file.lastModified
+      this.filename = file.name;
+      try {
+        // If font is not in fontlist, add it
+        if (!fontlist.fonts.find((f) => f.filename == this.filename)) {
+          fontlist.fonts.push(this);
+          this.familyname = "font" + fontlist.fonts.length;
+        }
+        this.init(await file.arrayBuffer())
+        fontlist.update()
+      } catch (e) {
+        console.error(e);
+        $("#toast .toast-body").html("Error loading font: " + e);
+        (new Bootstrap.Toast($("#toast")[0])).show();
+      }
+    }
+  }
+
+  init(fontBlob: ArrayBuffer, faceIdx: number = 0) {
     this.supportedLanguages = new Set();
     this.supportedScripts = new Set();
     this.supportedFeatures = new Set();
@@ -71,7 +101,7 @@ export class Font {
       this.base64 = `data:application/octet-stream;base64,${arrayBufferToBase64(
         fontBlob
       )}`;
-      this.fontFace = `@font-face{font-family:"${name}"; src:url(${this.base64});}`;
+      this.fontFace = `@font-face{font-family:"${this.familyname}"; src:url(${this.base64});}`;
       const { hbjs } = window;
       const blob = hbjs.createBlob(fontBlob);
       const face = hbjs.createFace(blob, faceIdx);

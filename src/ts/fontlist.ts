@@ -75,18 +75,19 @@ class FontList {
     return axes;
   }
 
-  addFont(font: Font) {
-    this.fonts.push(font);
-    $("#fontcss").append(font.fontFace);
+  update() {
     this.updateFontList();
     this.updateVariations();
-    window["font"] = font;
     this.updatePalettes();
     this.updateFeatures();
     this.updateText();
   }
 
   updateFontList() {
+    $("#fontcss").empty();
+    for (let font of this.fonts) {
+      $("#fontcss").append(font.fontFace);
+    }
     if (this.fonts.length == 0) {
       $("#drop-sign").show();
     } else {
@@ -98,7 +99,7 @@ class FontList {
       $("#fontlist").append(
         `<div class="font-item" data-index="${index}">
           <div class="font-name text-muted">${font.filename}</div>
-          <div class="sample" style="font-family: '${font.filename}', 'Adobe Notdef'">${text}</div>
+          <div class="sample" style="font-family: '${font.familyname}', 'Adobe Notdef'">${text}</div>
           <div class="hbsample" style="display: none"></div>
         </div>`
       );

@@ -64,30 +64,34 @@ $("#glyphlist-toggle-item").on("click", function() {
 
 $("#text").on("input", fontlist.updateText.bind(fontlist));
 
-function handleUpload(files: FileList) {
-  for (var file of files) {
+async function handleUpload(files: DataTransferItemList) {
+  for (var item of files) {
     // Is it a TTF/OTF?
-    if (file.type == "font/ttf" || file.type == "font/otf") {
-      var reader = new FileReader();
-      reader.onload = (function (file: File) {
-        return (e) => {
-          var arrayBuffer = reader.result as ArrayBuffer;
-          var byteArray = new Uint8Array(arrayBuffer);
-          try {
-            var newFont = new Font(file.name, byteArray);
-            console.log("Adding new font "+file.name);
-            fontlist.addFont(newFont);
+    if (item.kind == "file" && (item.type == "font/ttf" || item.type == "font/otf")) {
+      try {
+        // Chrome and friends
+        let handle: FileSystemHandle = await item.getAsFileSystemHandle();
+        let font = new Font(handle as FileSystemFileHandle)
+        setInterval(font.compare.bind(font), 1000);
+      } catch (e) {
+        // Safari
+        var reader = new FileReader();
+        reader.onload = (function (file: File) {
+          return (e) => {
+            var arrayBuffer = reader.result as ArrayBuffer;
+            var byteArray = new Uint8Array(arrayBuffer);
+            var newFont = new Font(undefined);
+            fontlist.fonts.push(newFont);
+            newFont.familyname = "font" + fontlist.fonts.length;
+            newFont.init(byteArray);
+            newFont.filename = file.name;
+            fontlist.update();
           }
-          catch (e) {
-            console.error(e);
-            $("#toast .toast-body").html("Error loading font: " + e);
-            (new Bootstrap.Toast($("#toast")[0])).show();
-          }
-        };
-      })(file);
-      reader.readAsArrayBuffer(file);
+        })(item.getAsFile());
+        reader.readAsArrayBuffer(item.getAsFile());
+      }
     } else {
-      $("#toast .toast-body").html("Invalid file type: " + file.type);
+      $("#toast .toast-body").html("Invalid file type: " + item.getAsFile().type);
       (new Bootstrap.Toast($("#toast")[0])).show();
     }
   }
@@ -100,5 +104,5 @@ $("#main").on("drop", function(e) {
   console.log("Drop on main")
   e.preventDefault();
   e.stopPropagation();
-  handleUpload(e.originalEvent.dataTransfer.files);
+  handleUpload(e.originalEvent.dataTransfer.items);
 });
