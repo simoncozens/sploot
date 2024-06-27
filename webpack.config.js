@@ -35,6 +35,8 @@ module.exports = {
             patterns: [
                 { from: 'src/index.html', to: 'index.html' },
                 { from: 'src/harfbuzz.wasm', to: 'assets/harfbuzz.wasm' },
+                { context: 'src/', from: '*.png', to: 'assets/' },
+                { context: 'src/', from: 'favicon.ico', to: 'favicon.ico' },
             ],
         })
     ],
