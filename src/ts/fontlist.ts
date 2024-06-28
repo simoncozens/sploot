@@ -76,11 +76,48 @@ class FontList {
   }
 
   update() {
+    // Save state
+    let variations = this.variations();
+    let features = this.features();
+    let selected = this.selectedFont;
+
     this.updateFontList();
     this.updateVariations();
     this.updatePalettes();
     this.updateFeatures();
+
+    // Restore state
+    $(".axis-slider").each(function () {
+      let tag = $(this).attr("id").split("-")[0];
+      $(this).val(variations[tag]);
+    });
+    $("span[data-feature]").each(function () {
+      let feature = $(this).data("feature");
+      $(this).removeClass("text-bg-primary text-bg-danger text-bg-secondary");
+      if (feature in features) {
+        if (features[feature]) {
+          $(this).data("feature-state", "on");
+          $(this).addClass("text-bg-primary");
+        } else {
+          $(this).data("feature-state", "off");
+          $(this).addClass("text-bg-danger");
+        }
+      } else {
+        $(this).data("feature-state", "auto");
+        $(this).addClass("text-bg-secondary");
+      }
+    });
+    this.fonts.forEach((font) => {
+      font.setVariations(this.variations());
+    });
+    $(".sample").css("font-feature-settings", this.featuresCSS());
+    if (selected) {
+      let selectedIndex = this.fonts.indexOf(selected);
+      $(`.font-item[data-index=${selectedIndex}]`).trigger("click");
+    }
+
     this.updateText();
+
   }
 
   updateFontList() {
