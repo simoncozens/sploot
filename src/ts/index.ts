@@ -117,7 +117,9 @@ async function handleUpload(files: DataTransferItemList) {
     // Is it a TTF/OTF?
     if (
       item.kind == "file" &&
-      (item.type == "font/ttf" || item.type == "font/otf")
+      (item.getAsFile().type == "font/ttf" ||
+        item.getAsFile().type == "font/otf" ||
+        !item.getAsFile().type)
     ) {
       console.log("Live reloading?", liveReloading());
       if (liveReloading()) {
