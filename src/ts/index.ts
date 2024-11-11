@@ -25,6 +25,15 @@ $(() => {
       }
     });
   }
+
+  // Focus on input when browser tab is focused
+  document.addEventListener("visibilitychange", () => {
+    $("#text").trigger("focus");
+  });
+  $(window).on("focus", () => {
+    $("#text").trigger("focus");
+  });
+
 });
 
 function liveReloading() {
