@@ -23,7 +23,7 @@
     "display": "standalone",
     "file_handlers": [
         {
-            "action": "/",
+            "action": "/sploot",
             "name": "OpenType Font",
             "accept": {
                 "font/ttf": [
