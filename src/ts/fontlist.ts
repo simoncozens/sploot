@@ -125,7 +125,6 @@ class FontList {
     }
 
     this.updateText();
-
   }
 
   updateFontList() {
@@ -228,11 +227,13 @@ class FontList {
   }
 
   setToDefaultPalette() {
-    var theme = localStorage.getItem('theme');
+    var theme = localStorage.getItem("theme");
     if (theme == "auto") {
-      theme = (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
     }
-    $(".sample").css("font-palette", theme)
+    $(".sample").css("font-palette", theme);
   }
 
   updatePalettes() {
@@ -251,7 +252,7 @@ class FontList {
         select.append(option);
       }
       $("#palettes-input").append(select);
-      select.on("input",  () => {
+      select.on("input", () => {
         let palettename = select.val() as string;
         if (palettename == "default") {
           this.setToDefaultPalette();
@@ -267,7 +268,7 @@ class FontList {
           }
         });
       });
-      this.setToDefaultPalette()
+      this.setToDefaultPalette();
     }
   }
 
@@ -371,42 +372,66 @@ class FontList {
     }
     $(".sample").html(text);
     $(".hbsample").empty();
-    let selected = this.selectedFont;
-    if (!selected && this.fonts.length > 0) {
-      selected = this.fonts[0];
-    }
-    if (selected) {
-      let selectedIndex = this.fonts.indexOf(selected);
-      var shaped = selected.shape(text, {
-        features: this.features(),
-        clusterLevel: 0,
-        bufferFlag: [],
-        direction: "auto",
-        script: "",
-        language: "",
-      });
-      $("#glyphlist-body").empty();
-      $("#glyphlist").show();
-      for (let i = 0; i < shaped.length; i++) {
-        let glyph = shaped[i];
-        $("#glyphlist-body").append(
-          `<tr><td>${glyph.name}</td>
+    let selectedIndex = Math.max(this.fonts.indexOf(this.selectedFont),0);
+    console.log("Selected index", selectedIndex);
+    for (let [ix, font] of this.fonts.entries()) {
+      
+      if (ix == selectedIndex) {
+        var shaped = font.shape(text, {
+          features: this.features(),
+          clusterLevel: 0,
+          bufferFlag: [],
+          direction: "auto",
+          script: "",
+          language: "",
+        });
+        $("#glyphlist-body").empty();
+        $("#glyphlist").show();
+        for (let i = 0; i < shaped.length; i++) {
+          let glyph = shaped[i];
+          $("#glyphlist-body").append(
+            `<tr><td>${glyph.name}</td>
             <td>${glyph.ax}</td>
             <td>${glyph.dx}</td>
             <td>${glyph.dy}</td>
             <td>${glyph.cl}</td>
             <td>${glyph.g}</td>
              `
-        );
+          );
+        }
+        $("#glyphlist-body tr").on("click", function (e) {
+          console.log("Click!", this)
+          $("#glyphlist-body tr").removeClass("selected");
+          $("#glyphlist-body tr td").removeClass("selected");
+          $(this).addClass("selected");
+          $(this).find("td").addClass("selected");
+          e.stopPropagation();
+          fontlist.updateHbsample();
+        });
       }
-      if (shaped.length > 0) {
-        selected
-          .glyphstringToSVG(shaped)
-          .addTo($(`.hbsample`).get(selectedIndex));
-      }
-
     }
+    this.updateHbsample();
   }
+
+  updateHbsample() {
+    let text = $("#text").val() as string;
+    $(".hbsample").empty();
+    let selectedGlyph = $("#glyphlist-body tr.selected").index();
+    for (let [ix, font] of this.fonts.entries()) {
+        let shaped = font.shape(text, {
+        features: this.features(),
+        clusterLevel: 0,
+        bufferFlag: [],
+        direction: "auto",
+        script: "",
+        language: ""
+        });
+        if (shaped.length > 0) {
+        font.glyphstringToSVG(shaped, selectedGlyph).addTo($(`.hbsample`).get(ix));
+        }
+      }
+  }
+
 }
 
-export let fontlist = new FontList();
+export let fontlist = window["fontlist"] = new FontList();

@@ -245,37 +245,34 @@ export class Font {
     return doc.documentElement;
   }
 
-  glyphstringToSVG(glyphstring: HBGlyph[]): SVG.Svg {
+  glyphstringToSVG(glyphstring: HBGlyph[], highlightedglyph): SVG.Svg {
     let curAX = 0;
-    let curAY = 0;
     const totalSVG = SVG.SVG();
     const maingroup = totalSVG.group();
-    glyphstring.forEach((g) => {
+    maingroup.transform({ scaleY:-1, translateY: 0 });
+
+    console.log("Selected glyph", highlightedglyph);
+    let fullheight = this.otFont?.ascender - this.otFont?.descender;
+    let ascender = this.otFont?.ascender;
+    let descender = this.otFont?.descender;
+    let curAY = -descender/2;
+    glyphstring.forEach((g, ix) => {
       const group = maingroup.group();
       const svgDoc = SVG.SVG(this.getSVG(g.g));
       svgDoc.children().forEach((c) => group.add(c));
       group.transform({
-        translate: [curAX + (g.dx || 0), curAY + (g.dy || 0)],
+        translate: [curAX + (g.dx || 0), -ascender + curAY + (g.dy || 0)],
       });
-      // if (g.cl === highlightedglyph) {
-      //   const otGlyph = this.getGlyph(g.g);
-      //   if (otGlyph) {
-      //     group
-      //       .rect(
-      //         otGlyph.advanceWidth,
-      //         otGlyph.getMetrics().yMax - otGlyph.getMetrics().yMin
-      //       )
-      //       .stroke({ color: "#f06", width: 5 })
-      //       .fill("none")
-      //       .transform({ translate: [0, otGlyph.getMetrics().yMin] });
-      //   }
-      // }
+      if (ix === highlightedglyph) {
+          group.fill({ color: "#f06" })
+      }
       curAX += g.ax || 0;
       curAY += g.ay || 0;
     });
-    maingroup.transform({ flip: "y" });
+    console.log(maingroup)
     const box = maingroup.bbox();
-    totalSVG.viewbox(box.x, box.y, box.width, box.height);
+    totalSVG.viewbox(0, 0, box.width + box.x, fullheight);
+    totalSVG.attr("preserveAspectRatio", "none");
     return totalSVG;
   }
 }

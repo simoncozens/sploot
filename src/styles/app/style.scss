@@ -48,11 +48,12 @@ main {
 }
 .sample,
 .hbsample {
-  font-size: 60px;
+  font-size: 4em;
+  line-height: 1;
   position: relative;
 }
 .hbsample svg {
-  height: 60px;
+  height: 1.25em;
 }
 .bi {
   width: 1em;
@@ -66,14 +67,14 @@ main {
   flex: 0 0 auto;
 }
 .selected {
-  background-color: darken($body-bg, 10%);
+  background-color: darken($body-bg, 7%) !important;
 }
 .hbsample svg {
   fill: var(--bs-body-color);
 }
 @include color-mode(dark) {
   .selected {
-    background-color: lighten(#212529, 10%);
+    background-color: lighten(#212529, 7%) !important;
   }
 }
 
