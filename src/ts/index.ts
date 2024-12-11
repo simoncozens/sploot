@@ -6,6 +6,21 @@ import { fontlist } from "./fontlist";
 import "./colortoggle";
 import "./sidebar";
 
+// Load service worker
+console.log("Service worker registration");
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/service-worker.js")
+      .then((registration) => {
+        console.log("SW registered: ", registration);
+      })
+      .catch((registrationError) => {
+        console.log("SW registration failed: ", registrationError);
+      });
+  });
+}
+
 window["$"] = $;
 
 $(() => {
@@ -34,6 +49,20 @@ $(() => {
     $("#text").trigger("focus");
   });
 
+  // Handle fonts loaded from operating system
+  // In grafr.com/open-csv
+  if ("launchQueue" in window) {
+    // @ts-ignore
+    window.launchQueue.setConsumer((launchParams) => {
+      console.log("launchParams", launchParams);
+      if (!launchParams.files.length) return;
+
+      for (let handle of launchParams.files) {
+        let font = new Font(handle as FileSystemFileHandle);
+        setInterval(font.compare.bind(font), 1000);
+      }
+    });
+  }
 });
 
 function liveReloading() {
