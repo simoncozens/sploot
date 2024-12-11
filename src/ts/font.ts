@@ -63,6 +63,7 @@ export class Font {
   axes?: Map<string, Axis>;
   axisNames?: Map<string, string>;
   palettes: Map<string, number | string>;
+  namedInstances: Map<string, Record<string, number>>;
 
   constructor(handle: FileSystemFileHandle, faceIdx: number = 0) {
     this.lastmodificationtime = 0;
@@ -97,6 +98,8 @@ export class Font {
     this.axes = new Map();
     this.axisNames = new Map();
     this.palettes = new Map();
+    this.namedInstances = new Map();
+
     if (fontBlob) {
       this.base64 = `data:application/octet-stream;base64,${arrayBufferToBase64(
         fontBlob
@@ -122,6 +125,9 @@ export class Font {
         this.axisNames = new Map();
         this.otFont.tables.fvar.axes.forEach((axis: any) => {
           this.axisNames.set(axis.tag, axis.name.en);
+        });
+        this.otFont.tables.fvar.instances.forEach((instance: any) => {
+          this.namedInstances.set(instance.name.en, instance.coordinates);
         });
       }
       if (this.otFont && this.otFont.tables.cpal) {

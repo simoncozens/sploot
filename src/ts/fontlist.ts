@@ -75,6 +75,14 @@ class FontList {
     return axes;
   }
 
+  combinedInstanceNames(): string[] {
+    let instances: string[] = [];
+    for (let font of this.fonts) {
+      instances = instances.concat(...font.namedInstances.keys());
+    }
+    return instances.filter(onlyUnique);
+  }
+
   update() {
     // Save state
     let variations = this.variations();
@@ -159,6 +167,38 @@ class FontList {
   // Reset the axes
   updateVariations() {
     $("#variations-pane").empty();
+    let namedInstances = this.combinedInstanceNames();
+    if (namedInstances.length) {
+      $("#variations-pane").append(`
+        <select class="form-select mb-2" id="instances">
+          <option value="default">Named Instances</option>
+      `);
+      for (var name of namedInstances.sort()) {
+        let option = $(`<option value="${name}">${name}</option>`);
+        $("#instances").append(option);
+      }
+      let that = this;
+      $("#instances").on("input", function () {
+        let instancename = $("#instances").val() as string;
+        if (instancename == "default") {
+          $(".sample").css(`font-variation-settings`, "");
+          return;
+        }
+        let instances = fontlist.combinedInstanceNames();
+        let variations = fontlist.combinedAxes();
+        for (let font of fontlist.fonts) {
+          if (font.namedInstances.has(instancename)) {
+            let instance = font.namedInstances.get(instancename);
+            for (let [tag, value] of Object.entries(instance)) {
+              $(`#${tag}-axis`).val(value);
+            }
+            $(".sample").css(`font-variation-settings`, that.variationsCSS());
+            font.setVariations(fontlist.variations());
+            fontlist.updateText();
+          }
+        }
+      });
+    }
     let axisNameMap = this.combinedAxisNames();
     let that = this;
     for (let [tag, axis] of Object.entries(this.combinedAxes())) {
