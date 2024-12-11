@@ -18,8 +18,8 @@
             "type": "image/png"
         }
     ],
-    "id": "/?source=pwa",
-    "start_url": "/?source=pwa",
+    "id": "/sploot?source=pwa",
+    "start_url": "/sploot?source=pwa",
     "display": "standalone",
     "file_handlers": [
         {
